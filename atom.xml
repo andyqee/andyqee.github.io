@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2014-09-26T20:00:02+08:00</updated>
+  <updated>2014-09-26T20:03:17+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -57,7 +57,7 @@ sequence is:</p>
 
 <h2>Solution</h2>
 
-<p>recurcive version:</p>
+<p>recurcive implementation:</p>
 
 <figure class='code'><figcaption><span> (Regular_Expression_Matching.cpp)</span> <a href='http://andyqee.github.io/downloads/code/leetcode/Regular_Expression_Matching.cpp'>download</a></figcaption>
 <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
