@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2014-09-26T20:03:17+08:00</updated>
+  <updated>2014-09-26T20:06:41+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -14,7 +14,7 @@
 
   
   <entry>
-    <title type="html"><![CDATA[LeetCode Regular Expression Matching]]></title>
+    <title type="html"><![CDATA[LeetCode: Regular Expression Matching]]></title>
     <link href="http://andyqee.github.io/blog/2014/09/26/leetcode-regular-expression-matching/"/>
     <updated>2014-09-26T17:43:33+08:00</updated>
     <id>http://andyqee.github.io/blog/2014/09/26/leetcode-regular-expression-matching</id>
@@ -96,7 +96,7 @@ sequence is:</p>
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[LeetCode: 4Sum]]></title>
+    <title type="html"><![CDATA[LeetCode: Gray Code]]></title>
     <link href="http://andyqee.github.io/blog/2014/09/24/leetcode-gray-code/"/>
     <updated>2014-09-24T16:33:36+08:00</updated>
     <id>http://andyqee.github.io/blog/2014/09/24/leetcode-gray-code</id>
