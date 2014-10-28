@@ -9,24 +9,11 @@
   <meta name="author" content="Yee Qee">
 
   
-  <meta name="description" content="Implement regular expression matching with support for &lsquo;.&rsquo; and &lsquo;*&rsquo;.
-sequence is: 1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-16
-'.' &hellip;">
+  <meta name="description" content="layout: post
+title: &ldquo;iOS开发问题集合之一&rdquo;
+date: 2014-10-21 13:45:57 +0800
+comments: true
+categories: Problem1 为什么对类 A 的 delegate 属性设置成weak &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -83,6 +70,228 @@ sequence is: 1
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/21/ioskai-fa-wen-ti-ji-he-zhi-%5B%3F%5D/">Ioskai Fa Wen Ti Ji He Zhi [?]</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-21T00:00:00+08:00" pubdate data-updated="true"></time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><hr />
+
+<p>layout: post
+title: &ldquo;iOS开发问题集合之一&rdquo;
+date: 2014-10-21 13:45:57 +0800
+comments: true
+categories:</p>
+
+<h6>Problem1</h6>
+
+<p>为什么对类 A 的 delegate 属性设置成weak 或者assgin 会deadlock 。但是换成strong 可以正常运行。
+self 本身也是另外一个类的局部变量。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)createFilterBarFor:(AJKBSearchEstateViewController *)vc
+</span><span class='line'>{
+</span><span class='line'>    AJKBrokerAPI *brokerAPI = [[AJKBrokerAPI alloc] init];
+</span><span class='line'>    brokerAPI.delegate = self;
+</span><span class='line'>    [brokerAPI sendGetFilterWordsRequest];
+</span><span class='line'>    self.viewController = vc;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这时候delegate 所指的对象已经被释放掉了。所以运行到这里会出现 <strong>EXC_BAD_ACCESEX</strong>。像这类EXC_BAD_ACCESEX问题主要缘于<strong>access released objects</strong>。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> if ([self.delegate respondsToSelector:@selector(didLoadFilterItemsSuccess:)]) {
+</span><span class='line'>        [self.delegate didLoadFilterItemsSuccess:filtersArrays];
+</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+
+
+<p>一个正确的做法是将A类的实例，设置成B的property，然后保证 delegate 的属性 设置成weak or assign这样避免环形引用。如果一定要将其创建成一个B的局部变量，那么就得将A的delegate 属性创建成Strong，这样才不至于出现EXC_BAD_ACCESS。</p>
+
+<h6>Problem2</h6>
+
+<p>为什么程序运行到</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>        imageView.image = strongSelf.arrowImageViews[oppsiteIndex];</span></code></pre></td></tr></table></div></figure>
+
+
+<p>会crash 呢？ 而且会不断 调用 imageView setImage 方法。是不是因为 迭代器里 block 执行时异步的？但是UI绘制时在主线程？？</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>__weak typeof(self) weakSelf = self;
+</span><span class='line'>    [self.arrowImageViews enumerateObjectsUsingBlock:^(UIImageView *imageView, NSUInteger idx, BOOL *stop) {
+</span><span class='line'>        __strong typeof(weakSelf) strongSelf = weakSelf;
+</span><span class='line'>        if (idx == index) {
+</span><span class='line'>            imageView.image = strongSelf.arrowImageViews[imageIndex];
+</span><span class='line'>        } else {
+</span><span class='line'>            NSInteger oppsiteIndex = imageIndex ^ 1;
+</span><span class='line'>            imageView.image = strongSelf.arrowImageViews[oppsiteIndex];
+</span><span class='line'>        }
+</span><span class='line'>    }];</span></code></pre></td></tr></table></div></figure>
+
+
+<p>原因：低级错误，arrowImageViews （UIImageView 类型） 写错了，应该时arrowImags UIImage 类型
+如果是UI代码已运行就crash，通常是因为传值类型不匹配导致的。</p>
+
+<h6>Problem5</h6>
+
+<p>在执行完之后，为什么self.emptyBackgroundView 还在其superView 中呢？？</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (self.emptyBackgroundView) {
+</span><span class='line'>    [self.emptyBackgroundView removeFromSuperview];
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>但是通过po [self.view subviews] 发现有许多重复的 emptyBackgroundView view 加在了subview 数组里面，导致移除该 emptyBackgroundView ，还有很多 emptyBackgroundView。 所以看上去，好像是没有被remove掉。
+出现这种情况是因为，[ self addSubView self.emptyBackground] api callBack 调用，多次请求之后会出现重复addSubview。这样view 的hierarchy重复的subview 会增加。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;AJKBSearchNoResultView: 0x7a622da0; frame = (0 46; 320 478); layer = &lt;CALayer: 0x7a65c300&gt;&gt;,
+</span><span class='line'>&lt;AJKBSearchNoResultView: 0x7a626c50; frame = (0 46; 320 478); layer = &lt;CALayer: 0x7a6f4660&gt;&gt;,
+</span><span class='line'>&lt;AJKBSearchNoResultView: 0x7ac688f0; frame = (0 46; 320 478); layer = &lt;CALayer: 0x7ac67f30&gt;&gt;,
+</span><span class='line'>&lt;AJKBSearchNoResultView: 0x7ac69cf0; frame = (0 46; 320 478); layer = &lt;CALayer: 0x7ac69d60&gt;&gt;,
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>通过手段改善：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'> if (![self.view.subviews containsObject:self.emptyBackgroundView]){
+</span><span class='line'>        [self.view addSubview:self.emptyBackgroundView];
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>`</p>
+
+<p>Problem6
+对于subview 比较复杂的页面，如果要保证某个view可见
+可以使用</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>    [self.view bringSubviewToFront:self.tableView];</span></code></pre></td></tr></table></div></figure>
+
+
+<p>解决self.tableView 被遮挡的问题。</p>
+
+<h6>Problem7</h6>
+
+<p>如果是给UITablView 中delegate赋值A类的instance，一定得注意其UITableViewDelegate的方法和 UIScrollViewDelegate 方法只能在同一个类的instance中实现。</p>
+
+<h6>Problem8</h6>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[tableView deselectRowAtIndexPath:indexPath animated:YES];
+</span><span class='line'>    if (self.navigationController.view.frame.origin.x &gt; 0) {
+</span><span class='line'>        return;
+</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+
+
+<h6>Problem8</h6>
+
+<p>设置statusBar样式的方法</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+</span><span class='line'>这是全局修改</span></code></pre></td></tr></table></div></figure>
+
+
+<p>设置navigationBar backgroundColor. iOS 7 和 iOS 6 有差异</p>
+
+<p>if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@&ldquo;7.0&rdquo;)) {</p>
+
+<pre><code>self.navigationController.navigationBar.barTintColor = NAVIGATIONBAR_COLOR;
+self.navigationController.navigationBar.translucent = YES;    
+</code></pre>
+
+<p>} else {</p>
+
+<pre><code>self.navigationController.navigationBar.tintColor = NAVIGATIONBAR_COLOR;
+</code></pre>
+
+<p>}</p>
+
+<h6>Problem9</h6>
+
+<p>在TableView 试图回到最顶端，发现下面这个方法非常不稳定</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[self.tableView setContentOffset:CGPointZero animated:YES];
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>换成下面这个方法</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+</span><span class='line'>[self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h6>Problem10</h6>
+
+<p>UIViewController.view 其高度在 viewDidLoad 中ViewWillAppear 中是不同的。ViewWillAppear view 的高度已经去掉statusBar 和navigationBar 的高度。</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -621,6 +830,10 @@ Software Engineer Intern  Shanghai (2012/07 &mdash; 2013/10)</li>
 <section>
   <h1>Recent Posts</h1>
   <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/21/ioskai-fa-wen-ti-ji-he-zhi-%5B%3F%5D/">Ioskai Fa Wen Ti Ji He Zhi [?]</a>
+      </li>
     
       <li class="post">
         <a href="/blog/2014/09/26/leetcode-regular-expression-matching/">LeetCode: Regular Expression Matching</a>
