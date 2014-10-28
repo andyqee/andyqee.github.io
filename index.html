@@ -10,10 +10,9 @@
 
   
   <meta name="description" content="layout: post
-title: &ldquo;iOS开发问题集合之一&rdquo;
+title: &ldquo;Q&amp;A about developing iOS: Session 1&rdquo;
 date: 2014-10-21 13:45:57 +0800
-comments: true
-categories: Problem1 为什么对类 A 的 delegate 属性设置成weak &hellip;">
+comments: true categories: iOS Problem1 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,7 +75,7 @@ categories: Problem1 为什么对类 A 的 delegate 属性设置成weak &hellip;
       
   <header>
     
-      <h1 class="entry-title"><a href="/blog/2014/10/21/ioskai-fa-wen-ti-ji-he-zhi-%5B%3F%5D/">Ioskai Fa Wen Ti Ji He Zhi [?]</a></h1>
+      <h1 class="entry-title"><a href="/blog/2014/10/21/Q%26A-about-developing-iOS-Session-1/">Q&a About Developing Ios Session 1</a></h1>
     
     
       <p class="meta">
@@ -102,10 +101,11 @@ categories: Problem1 为什么对类 A 的 delegate 属性设置成weak &hellip;
   <div class="entry-content"><hr />
 
 <p>layout: post
-title: &ldquo;iOS开发问题集合之一&rdquo;
+title: &ldquo;Q&amp;A about developing iOS: Session 1&rdquo;
 date: 2014-10-21 13:45:57 +0800
-comments: true
-categories:</p>
+comments: true</p>
+
+<h2>categories: iOS</h2>
 
 <h6>Problem1</h6>
 
@@ -175,7 +175,7 @@ self 本身也是另外一个类的局部变量。</p>
 <p>原因：低级错误，arrowImageViews （UIImageView 类型） 写错了，应该时arrowImags UIImage 类型
 如果是UI代码已运行就crash，通常是因为传值类型不匹配导致的。</p>
 
-<h6>Problem5</h6>
+<h6>Problem3</h6>
 
 <p>在执行完之后，为什么self.emptyBackgroundView 还在其superView 中呢？？</p>
 
@@ -212,9 +212,7 @@ self 本身也是另外一个类的局部变量。</p>
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>`</p>
-
-<p>Problem6
+<p>Problem4
 对于subview 比较复杂的页面，如果要保证某个view可见
 可以使用</p>
 
@@ -224,11 +222,11 @@ self 本身也是另外一个类的局部变量。</p>
 
 <p>解决self.tableView 被遮挡的问题。</p>
 
-<h6>Problem7</h6>
+<h6>Problem5</h6>
 
 <p>如果是给UITablView 中delegate赋值A类的instance，一定得注意其UITableViewDelegate的方法和 UIScrollViewDelegate 方法只能在同一个类的instance中实现。</p>
 
-<h6>Problem8</h6>
+<h6>Problem6</h6>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -240,7 +238,7 @@ self 本身也是另外一个类的局部变量。</p>
 </span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
 
 
-<h6>Problem8</h6>
+<h6>Problem7</h6>
 
 <p>设置statusBar样式的方法</p>
 
@@ -265,7 +263,7 @@ self.navigationController.navigationBar.translucent = YES;
 
 <p>}</p>
 
-<h6>Problem9</h6>
+<h6>Problem8</h6>
 
 <p>在TableView 试图回到最顶端，发现下面这个方法非常不稳定</p>
 
@@ -283,7 +281,7 @@ self.navigationController.navigationBar.translucent = YES;
 </span></code></pre></td></tr></table></div></figure>
 
 
-<h6>Problem10</h6>
+<h6>Problem9</h6>
 
 <p>UIViewController.view 其高度在 viewDidLoad 中ViewWillAppear 中是不同的。ViewWillAppear view 的高度已经去掉statusBar 和navigationBar 的高度。</p>
 </div>
@@ -832,7 +830,7 @@ Software Engineer Intern  Shanghai (2012/07 &mdash; 2013/10)</li>
   <ul id="recent_posts">
     
       <li class="post">
-        <a href="/blog/2014/10/21/ioskai-fa-wen-ti-ji-he-zhi-%5B%3F%5D/">Ioskai Fa Wen Ti Ji He Zhi [?]</a>
+        <a href="/blog/2014/10/21/Q%26A-about-developing-iOS-Session-1/">Q&a About Developing Ios Session 1</a>
       </li>
     
       <li class="post">
