@@ -1,0 +1,461 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>iOS Q&amp;A Session 1 - Yee's Blog</title>
+  <meta name="author" content="Yee Qee">
+
+  
+  <meta name="description" content="Problem1 为什么对类 A 的 delegate 属性设置成weak 或者assgin 会deadlock 。但是换成strong 可以正常运行。
+self 本身也是另外一个类的局部变量。 1
+2
+3
+4
+5
+6
+7
+- (void)createFilterBarFor:( &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://andyqee.github.io/blog/2014/10/28/ios-q-and-a-session-1">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <link href="/atom.xml" rel="alternate" title="Yee's Blog" type="application/atom+xml">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script>!window.jQuery && document.write(unescape('%3Cscript src="./javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Yee's Blog</a></h1>
+  
+    <h2>Practicing Thinking Learning Sharing .</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="https://www.google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:andyqee.github.io" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+  <li><a href="/about">About</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">iOS Q&amp;A Session 1</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-28T14:11:52+08:00" pubdate data-updated="true">Oct 28<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><h6>Problem1</h6>
+
+<p>为什么对类 A 的 delegate 属性设置成weak 或者assgin 会deadlock 。但是换成strong 可以正常运行。
+self 本身也是另外一个类的局部变量。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)createFilterBarFor:(AJKBSearchEstateViewController *)vc
+</span><span class='line'>{
+</span><span class='line'>AJKBrokerAPI *brokerAPI = [[AJKBrokerAPI alloc] init];
+</span><span class='line'>brokerAPI.delegate = self;
+</span><span class='line'>[brokerAPI sendGetFilterWordsRequest];
+</span><span class='line'>self.viewController = vc;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这时候delegate 所指的对象已经被释放掉了。所以运行到这里会出现 <strong>EXC_BAD_ACCESEX</strong>。像这类EXC_BAD_ACCESEX问题主要缘于<strong>access released objects</strong>。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if ([self.delegate respondsToSelector:@selector(didLoadFilterItemsSuccess:)]) {
+</span><span class='line'>[self.delegate didLoadFilterItemsSuccess:filtersArrays];
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>一个正确的做法是将A类的实例，设置成B的property，然后保证 delegate 的属性 设置成weak or assign这样避免环形引用。如果一定要将其创建成一个B的局部变量，那么就得将A的delegate 属性创建成Strong，这样才不至于出现EXC_BAD_ACCESS。</p>
+
+<h6>Problem2</h6>
+
+<p>为什么程序运行到</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>imageView.image = strongSelf.arrowImageViews[oppsiteIndex];</span></code></pre></td></tr></table></div></figure>
+
+
+<p>会crash 呢？ 而且会不断 调用 imageView setImage 方法。是不是因为 迭代器里 block 执行时异步的？但是UI绘制时在主线程？？</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>__weak typeof(self) weakSelf = self;
+</span><span class='line'>[self.arrowImageViews enumerateObjectsUsingBlock:^(UIImageView *imageView, NSUInteger idx, BOOL *stop) {
+</span><span class='line'>__strong typeof(weakSelf) strongSelf = weakSelf;
+</span><span class='line'>if (idx == index) {
+</span><span class='line'>imageView.image = strongSelf.arrowImageViews[imageIndex];
+</span><span class='line'>} else {
+</span><span class='line'>NSInteger oppsiteIndex = imageIndex ^ 1;
+</span><span class='line'>imageView.image = strongSelf.arrowImageViews[oppsiteIndex];
+</span><span class='line'>}
+</span><span class='line'>}];</span></code></pre></td></tr></table></div></figure>
+
+
+<p>原因：低级错误，arrowImageViews （UIImageView 类型） 写错了，应该时arrowImags UIImage 类型
+如果是UI代码已运行就crash，通常是因为传值类型不匹配导致的。</p>
+
+<h6>Problem3</h6>
+
+<p>在执行完之后，为什么self.emptyBackgroundView 还在其superView 中呢？？</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (self.emptyBackgroundView) {
+</span><span class='line'>[self.emptyBackgroundView removeFromSuperview];
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>但是通过po [self.view subviews] 发现有许多重复的 emptyBackgroundView view 加在了subview 数组里面，导致移除该 emptyBackgroundView ，还有很多 emptyBackgroundView。 所以看上去，好像是没有被remove掉。
+出现这种情况是因为，[ self addSubView self.emptyBackground] api callBack 调用，多次请求之后会出现重复addSubview。这样view 的hierarchy重复的subview 会增加。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>&lt;AJKBSearchNoResultView: 0x7a622da0; frame = (0 46; 320 478); layer = &lt;CALayer: 0x7a65c300&gt;&gt;,
+</span><span class='line'>&lt;AJKBSearchNoResultView: 0x7a626c50; frame = (0 46; 320 478); layer = &lt;CALayer: 0x7a6f4660&gt;&gt;,
+</span><span class='line'>&lt;AJKBSearchNoResultView: 0x7ac688f0; frame = (0 46; 320 478); layer = &lt;CALayer: 0x7ac67f30&gt;&gt;,
+</span><span class='line'>&lt;AJKBSearchNoResultView: 0x7ac69cf0; frame = (0 46; 320 478); layer = &lt;CALayer: 0x7ac69d60&gt;&gt;,
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>通过手段改善：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (![self.view.subviews containsObject:self.emptyBackgroundView]){
+</span><span class='line'>[self.view addSubview:self.emptyBackgroundView];
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h6>Problem4</h6>
+
+<p>对于subview 比较复杂的页面，如果要保证某个view可见
+可以使用</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[self.view bringSubviewToFront:self.tableView];</span></code></pre></td></tr></table></div></figure>
+
+
+<p>解决self.tableView 被遮挡的问题。</p>
+
+<h6>Problem5</h6>
+
+<p>如果是给UITablView 中delegate赋值A类的instance，一定得注意其UITableViewDelegate的方法和 UIScrollViewDelegate 方法只能在同一个类的instance中实现。</p>
+
+<h6>Problem6</h6>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[tableView deselectRowAtIndexPath:indexPath animated:YES];
+</span><span class='line'>if (self.navigationController.view.frame.origin.x &gt; 0) {
+</span><span class='line'>return;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h6>Problem7</h6>
+
+<p>设置statusBar样式的方法</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault];
+</span><span class='line'>这是全局修改</span></code></pre></td></tr></table></div></figure>
+
+
+<p>设置navigationBar backgroundColor. iOS 7 和 iOS 6 有差异</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+</span><span class='line'>self.navigationController.navigationBar.barTintColor = NAVIGATIONBAR_COLOR;
+</span><span class='line'>self.navigationController.navigationBar.translucent = YES;    
+</span><span class='line'>} else {
+</span><span class='line'>self.navigationController.navigationBar.tintColor = NAVIGATIONBAR_COLOR;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h6>Problem8</h6>
+
+<p>在TableView 试图回到最顶端，发现下面这个方法非常不稳定</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[self.tableView setContentOffset:CGPointZero animated:YES];
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>换成下面这个方法</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:0];
+</span><span class='line'>[self.tableView scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h6>Problem9</h6>
+
+<p>UIViewController.view 其高度在 viewDidLoad 中ViewWillAppear 中是不同的。ViewWillAppear view 的高度已经去掉statusBar 和navigationBar 的高度。</p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Yee Qee</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-28T14:11:52+08:00" pubdate data-updated="true">Oct 28<span>th</span>, 2014</time>
+      
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://andyqee.github.io/blog/2014/10/28/ios-q-and-a-session-1/" data-via="vitasone" data-counturl="http://andyqee.github.io/blog/2014/10/28/ios-q-and-a-session-1/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+    <div class="fb-like" data-send="true" data-width="450" data-show-faces="false"></div>
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2014/09/26/leetcode-regular-expression-matching/" title="Previous Post: LeetCode: Regular Expression Matching">&laquo; LeetCode: Regular Expression Matching</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Yi Qi</h1>
+  <p>iOS Dev Engineer,Linux/Unix Java Python Geek</p>
+</section>
+<section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/10/28/ios-q-and-a-session-1/">iOS Q&amp;A Session 1</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/26/leetcode-regular-expression-matching/">LeetCode: Regular Expression Matching</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/24/leetcode-gray-code/">LeetCode: Gray Code</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/09/24/leetcode-4sum/">LeetCode: 4Sum</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2014/05/18/yis-cv/">Yi's CV</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/andyqee">@andyqee</a> on GitHub
+  
+  <script type="text/javascript">
+    $(document).ready(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'andyqee',
+            count: 0,
+            skip_forks: true,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+
+<section class="googleplus">
+  <h1>
+    <a href="https://plus.google.com/祁溢?rel=author">
+      <img src="http://www.google.com/images/icons/ui/gprofile_button-32.png" width="32" height="32">
+      Google+
+    </a>
+  </h1>
+</section>
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Yee Qee -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+
+
+<div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) {return;}
+  js = d.createElement(s); js.id = id; js.async = true;
+  js.src = "//connect.facebook.net/en_US/all.js#appId=212934732101925&xfbml=1";
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = '//platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>

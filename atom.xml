@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2014-10-28T14:00:30+08:00</updated>
+  <updated>2014-10-28T14:13:45+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -14,21 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Q&a About Developing Ios Session 1]]></title>
-    <link href="http://andyqee.github.io/blog/2014/10/21/Q%26A-about-developing-iOS-Session-1/"/>
-    <updated>2014-10-21T00:00:00+08:00</updated>
-    <id>http://andyqee.github.io/blog/2014/10/21/Q&A-about-developing-iOS-Session-1</id>
-    <content type="html"><![CDATA[<hr />
-
-<p>layout: post
-title: &ldquo;Q&amp;A about developing iOS: Session 1&rdquo;
-date: 2014-10-21 13:45:57 +0800
-comments: true
-author: Yi Qi</p>
-
-<h2>categories: iOS</h2>
-
-<h6>Problem1</h6>
+    <title type="html"><![CDATA[iOS Q&amp;A Session 1]]></title>
+    <link href="http://andyqee.github.io/blog/2014/10/28/ios-q-and-a-session-1/"/>
+    <updated>2014-10-28T14:11:52+08:00</updated>
+    <id>http://andyqee.github.io/blog/2014/10/28/ios-q-and-a-session-1</id>
+    <content type="html"><![CDATA[<h6>Problem1</h6>
 
 <p>为什么对类 A 的 delegate 属性设置成weak 或者assgin 会deadlock 。但是换成strong 可以正常运行。
 self 本身也是另外一个类的局部变量。</p>
@@ -42,10 +32,10 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>- (void)createFilterBarFor:(AJKBSearchEstateViewController *)vc
 </span><span class='line'>{
-</span><span class='line'>    AJKBrokerAPI *brokerAPI = [[AJKBrokerAPI alloc] init];
-</span><span class='line'>    brokerAPI.delegate = self;
-</span><span class='line'>    [brokerAPI sendGetFilterWordsRequest];
-</span><span class='line'>    self.viewController = vc;
+</span><span class='line'>AJKBrokerAPI *brokerAPI = [[AJKBrokerAPI alloc] init];
+</span><span class='line'>brokerAPI.delegate = self;
+</span><span class='line'>[brokerAPI sendGetFilterWordsRequest];
+</span><span class='line'>self.viewController = vc;
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
@@ -54,9 +44,9 @@ self 本身也是另外一个类的局部变量。</p>
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> if ([self.delegate respondsToSelector:@selector(didLoadFilterItemsSuccess:)]) {
-</span><span class='line'>        [self.delegate didLoadFilterItemsSuccess:filtersArrays];
-</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if ([self.delegate respondsToSelector:@selector(didLoadFilterItemsSuccess:)]) {
+</span><span class='line'>[self.delegate didLoadFilterItemsSuccess:filtersArrays];
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
 <p>一个正确的做法是将A类的实例，设置成B的property，然后保证 delegate 的属性 设置成weak or assign这样避免环形引用。如果一定要将其创建成一个B的局部变量，那么就得将A的delegate 属性创建成Strong，这样才不至于出现EXC_BAD_ACCESS。</p>
@@ -66,7 +56,7 @@ self 本身也是另外一个类的局部变量。</p>
 <p>为什么程序运行到</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>        imageView.image = strongSelf.arrowImageViews[oppsiteIndex];</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>imageView.image = strongSelf.arrowImageViews[oppsiteIndex];</span></code></pre></td></tr></table></div></figure>
 
 
 <p>会crash 呢？ 而且会不断 调用 imageView setImage 方法。是不是因为 迭代器里 block 执行时异步的？但是UI绘制时在主线程？？</p>
@@ -82,15 +72,15 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>9</span>
 <span class='line-number'>10</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>__weak typeof(self) weakSelf = self;
-</span><span class='line'>    [self.arrowImageViews enumerateObjectsUsingBlock:^(UIImageView *imageView, NSUInteger idx, BOOL *stop) {
-</span><span class='line'>        __strong typeof(weakSelf) strongSelf = weakSelf;
-</span><span class='line'>        if (idx == index) {
-</span><span class='line'>            imageView.image = strongSelf.arrowImageViews[imageIndex];
-</span><span class='line'>        } else {
-</span><span class='line'>            NSInteger oppsiteIndex = imageIndex ^ 1;
-</span><span class='line'>            imageView.image = strongSelf.arrowImageViews[oppsiteIndex];
-</span><span class='line'>        }
-</span><span class='line'>    }];</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>[self.arrowImageViews enumerateObjectsUsingBlock:^(UIImageView *imageView, NSUInteger idx, BOOL *stop) {
+</span><span class='line'>__strong typeof(weakSelf) strongSelf = weakSelf;
+</span><span class='line'>if (idx == index) {
+</span><span class='line'>imageView.image = strongSelf.arrowImageViews[imageIndex];
+</span><span class='line'>} else {
+</span><span class='line'>NSInteger oppsiteIndex = imageIndex ^ 1;
+</span><span class='line'>imageView.image = strongSelf.arrowImageViews[oppsiteIndex];
+</span><span class='line'>}
+</span><span class='line'>}];</span></code></pre></td></tr></table></div></figure>
 
 
 <p>原因：低级错误，arrowImageViews （UIImageView 类型） 写错了，应该时arrowImags UIImage 类型
@@ -104,7 +94,7 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>if (self.emptyBackgroundView) {
-</span><span class='line'>    [self.emptyBackgroundView removeFromSuperview];
+</span><span class='line'>[self.emptyBackgroundView removeFromSuperview];
 </span><span class='line'>}
 </span></code></pre></td></tr></table></div></figure>
 
@@ -128,8 +118,8 @@ self 本身也是另外一个类的局部变量。</p>
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'> if (![self.view.subviews containsObject:self.emptyBackgroundView]){
-</span><span class='line'>        [self.view addSubview:self.emptyBackgroundView];
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (![self.view.subviews containsObject:self.emptyBackgroundView]){
+</span><span class='line'>[self.view addSubview:self.emptyBackgroundView];
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
@@ -139,7 +129,7 @@ self 本身也是另外一个类的局部变量。</p>
 可以使用</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>    [self.view bringSubviewToFront:self.tableView];</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>[self.view bringSubviewToFront:self.tableView];</span></code></pre></td></tr></table></div></figure>
 
 
 <p>解决self.tableView 被遮挡的问题。</p>
@@ -155,9 +145,9 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>[tableView deselectRowAtIndexPath:indexPath animated:YES];
-</span><span class='line'>    if (self.navigationController.view.frame.origin.x &gt; 0) {
-</span><span class='line'>        return;
-</span><span class='line'>    }</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>if (self.navigationController.view.frame.origin.x &gt; 0) {
+</span><span class='line'>return;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
 <h6>Problem7</h6>
@@ -172,18 +162,19 @@ self 本身也是另外一个类的局部变量。</p>
 
 <p>设置navigationBar backgroundColor. iOS 7 和 iOS 6 有差异</p>
 
-<p>if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@&ldquo;7.0&rdquo;)) {</p>
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
+</span><span class='line'>self.navigationController.navigationBar.barTintColor = NAVIGATIONBAR_COLOR;
+</span><span class='line'>self.navigationController.navigationBar.translucent = YES;    
+</span><span class='line'>} else {
+</span><span class='line'>self.navigationController.navigationBar.tintColor = NAVIGATIONBAR_COLOR;
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
-<pre><code>self.navigationController.navigationBar.barTintColor = NAVIGATIONBAR_COLOR;
-self.navigationController.navigationBar.translucent = YES;    
-</code></pre>
-
-<p>} else {</p>
-
-<pre><code>self.navigationController.navigationBar.tintColor = NAVIGATIONBAR_COLOR;
-</code></pre>
-
-<p>}</p>
 
 <h6>Problem8</h6>
 
