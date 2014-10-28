@@ -114,10 +114,10 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>7</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>- (void)createFilterBarFor:(AJKBSearchEstateViewController *)vc
 </span><span class='line'>{
-</span><span class='line'>AJKBrokerAPI *brokerAPI = [[AJKBrokerAPI alloc] init];
-</span><span class='line'>brokerAPI.delegate = self;
-</span><span class='line'>[brokerAPI sendGetFilterWordsRequest];
-</span><span class='line'>self.viewController = vc;
+</span><span class='line'>  AJKBrokerAPI *brokerAPI = [[AJKBrokerAPI alloc] init];
+</span><span class='line'>  brokerAPI.delegate = self;
+</span><span class='line'>  [brokerAPI sendGetFilterWordsRequest];
+</span><span class='line'>  self.viewController = vc;
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
@@ -127,7 +127,7 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>if ([self.delegate respondsToSelector:@selector(didLoadFilterItemsSuccess:)]) {
-</span><span class='line'>[self.delegate didLoadFilterItemsSuccess:filtersArrays];
+</span><span class='line'>  [self.delegate didLoadFilterItemsSuccess:filtersArrays];
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
@@ -155,13 +155,13 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>10</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>__weak typeof(self) weakSelf = self;
 </span><span class='line'>[self.arrowImageViews enumerateObjectsUsingBlock:^(UIImageView *imageView, NSUInteger idx, BOOL *stop) {
-</span><span class='line'>__strong typeof(weakSelf) strongSelf = weakSelf;
-</span><span class='line'>if (idx == index) {
-</span><span class='line'>imageView.image = strongSelf.arrowImageViews[imageIndex];
-</span><span class='line'>} else {
-</span><span class='line'>NSInteger oppsiteIndex = imageIndex ^ 1;
-</span><span class='line'>imageView.image = strongSelf.arrowImageViews[oppsiteIndex];
-</span><span class='line'>}
+</span><span class='line'>  __strong typeof(weakSelf) strongSelf = weakSelf;
+</span><span class='line'>  if (idx == index) {
+</span><span class='line'>    imageView.image = strongSelf.arrowImageViews[imageIndex];
+</span><span class='line'>  } else {
+</span><span class='line'>    NSInteger oppsiteIndex = imageIndex ^ 1;
+</span><span class='line'>    imageView.image = strongSelf.arrowImageViews[oppsiteIndex];
+</span><span class='line'>  }
 </span><span class='line'>}];</span></code></pre></td></tr></table></div></figure>
 
 
@@ -176,7 +176,7 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>if (self.emptyBackgroundView) {
-</span><span class='line'>[self.emptyBackgroundView removeFromSuperview];
+</span><span class='line'>  [self.emptyBackgroundView removeFromSuperview];
 </span><span class='line'>}
 </span></code></pre></td></tr></table></div></figure>
 
@@ -201,7 +201,7 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>if (![self.view.subviews containsObject:self.emptyBackgroundView]){
-</span><span class='line'>[self.view addSubview:self.emptyBackgroundView];
+</span><span class='line'>  [self.view addSubview:self.emptyBackgroundView];
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
@@ -228,7 +228,7 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>4</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>[tableView deselectRowAtIndexPath:indexPath animated:YES];
 </span><span class='line'>if (self.navigationController.view.frame.origin.x &gt; 0) {
-</span><span class='line'>return;
+</span><span class='line'>  return;
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
@@ -251,10 +251,10 @@ self 本身也是另外一个类的局部变量。</p>
 <span class='line-number'>5</span>
 <span class='line-number'>6</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>if (SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0")) {
-</span><span class='line'>self.navigationController.navigationBar.barTintColor = NAVIGATIONBAR_COLOR;
-</span><span class='line'>self.navigationController.navigationBar.translucent = YES;    
+</span><span class='line'>  self.navigationController.navigationBar.barTintColor = NAVIGATIONBAR_COLOR;
+</span><span class='line'>  self.navigationController.navigationBar.translucent = YES;    
 </span><span class='line'>} else {
-</span><span class='line'>self.navigationController.navigationBar.tintColor = NAVIGATIONBAR_COLOR;
+</span><span class='line'>  self.navigationController.navigationBar.tintColor = NAVIGATIONBAR_COLOR;
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
