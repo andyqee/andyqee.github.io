@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2014-10-28T13:54:23+08:00</updated>
+  <updated>2014-10-28T14:00:30+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -23,7 +23,8 @@
 <p>layout: post
 title: &ldquo;Q&amp;A about developing iOS: Session 1&rdquo;
 date: 2014-10-21 13:45:57 +0800
-comments: true</p>
+comments: true
+author: Yi Qi</p>
 
 <h2>categories: iOS</h2>
 
@@ -132,8 +133,9 @@ self 本身也是另外一个类的局部变量。</p>
 </span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
 
 
-<p>Problem4
-对于subview 比较复杂的页面，如果要保证某个view可见
+<h6>Problem4</h6>
+
+<p>对于subview 比较复杂的页面，如果要保证某个view可见
 可以使用</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
