@@ -9,15 +9,7 @@
   <meta name="author" content="Yee Qee">
 
   
-  <meta name="description" content="Problem1 为什么对类 A 的 delegate 属性设置成weak 或者assgin 会deadlock 。但是换成strong 可以正常运行。
-self 本身也是另外一个类的局部变量。 1
-2
-3
-4
-5
-6
-7
-- (void)createFilterBarFor:( &hellip;">
+  <meta name="description" content="Given a string containing just the characters &lsquo;(&rsquo;, &lsquo;)&rsquo;, &lsquo;{&rsquo;, &lsquo;}&rsquo;, &lsquo;[&rsquo; and &lsquo;]&rsquo &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -74,6 +66,93 @@ self 本身也是另外一个类的局部变量。 1
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2014/10/29/leetcode-valid-parentheses/">LeetCode: Valid Parentheses</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-10-29T22:59:42+08:00" pubdate data-updated="true">Oct 29<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Given a string containing just the characters &lsquo;(&rsquo;, &lsquo;)&rsquo;, &lsquo;{&rsquo;, &lsquo;}&rsquo;, &lsquo;[&rsquo; and &lsquo;]&rsquo;, determine if the input string is valid.</p>
+
+<p>The brackets must close in the correct order, &ldquo;()&rdquo; and &ldquo;()[]{}&rdquo; are all valid but &ldquo;(]&rdquo; and &ldquo;([)]&rdquo; are not.</p>
+
+<h5>Solution(in C++)</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Solution {
+</span><span class='line'>public:
+</span><span class='line'>    bool isValid(string s) {
+</span><span class='line'>        stack&lt;char&gt; st;
+</span><span class='line'>        for(int index = 0; index != s.size(); ++index){
+</span><span class='line'>            if (s[index] == '{' || s[index] == '[' || s[index] == '(') {
+</span><span class='line'>                st.push(s[index]);
+</span><span class='line'>            } else {
+</span><span class='line'>                if(st.size() == 0) return false;
+</span><span class='line'>                if (s[index] == '}' && st.top() != '{') {
+</span><span class='line'>                    return false;
+</span><span class='line'>                } else if(s[index] == ')' && st.top() != '('){
+</span><span class='line'>                    return false;
+</span><span class='line'>                } else if(s[index] == ']' && st.top() != '['){
+</span><span class='line'>                    return false;
+</span><span class='line'>                }
+</span><span class='line'>                st.pop();
+</span><span class='line'>            }
+</span><span class='line'>        }
+</span><span class='line'>        return st.empty() ? true: false;
+</span><span class='line'>    }
+</span><span class='line'>};
+</span></code></pre></td></tr></table></div></figure>
+
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -828,6 +907,10 @@ Software Engineer Intern  Shanghai (2012/07 &mdash; 2013/10)</li>
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2014/10/29/leetcode-valid-parentheses/">LeetCode: Valid Parentheses</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/10/28/ios-q-and-a-session-1/">iOS Q&amp;A Session 1</a>
       </li>
     
@@ -841,10 +924,6 @@ Software Engineer Intern  Shanghai (2012/07 &mdash; 2013/10)</li>
     
       <li class="post">
         <a href="/blog/2014/09/24/leetcode-4sum/">LeetCode: 4Sum</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2014/05/18/yis-cv/">Yi&#8217;s CV</a>
       </li>
     
   </ul>

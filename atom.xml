@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2014-10-28T14:20:40+08:00</updated>
+  <updated>2014-10-29T23:04:11+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -12,6 +12,66 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[LeetCode: Valid Parentheses]]></title>
+    <link href="http://andyqee.github.io/blog/2014/10/29/leetcode-valid-parentheses/"/>
+    <updated>2014-10-29T22:59:42+08:00</updated>
+    <id>http://andyqee.github.io/blog/2014/10/29/leetcode-valid-parentheses</id>
+    <content type="html"><![CDATA[<p>Given a string containing just the characters &lsquo;(&rsquo;, &lsquo;)&rsquo;, &lsquo;{&rsquo;, &lsquo;}&rsquo;, &lsquo;[&rsquo; and &lsquo;]&rsquo;, determine if the input string is valid.</p>
+
+<p>The brackets must close in the correct order, &ldquo;()&rdquo; and &ldquo;()[]{}&rdquo; are all valid but &ldquo;(]&rdquo; and &ldquo;([)]&rdquo; are not.</p>
+
+<h5>Solution(in C++)</h5>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>class Solution {
+</span><span class='line'>public:
+</span><span class='line'>    bool isValid(string s) {
+</span><span class='line'>        stack&lt;char&gt; st;
+</span><span class='line'>        for(int index = 0; index != s.size(); ++index){
+</span><span class='line'>            if (s[index] == '{' || s[index] == '[' || s[index] == '(') {
+</span><span class='line'>                st.push(s[index]);
+</span><span class='line'>            } else {
+</span><span class='line'>                if(st.size() == 0) return false;
+</span><span class='line'>                if (s[index] == '}' && st.top() != '{') {
+</span><span class='line'>                    return false;
+</span><span class='line'>                } else if(s[index] == ')' && st.top() != '('){
+</span><span class='line'>                    return false;
+</span><span class='line'>                } else if(s[index] == ']' && st.top() != '['){
+</span><span class='line'>                    return false;
+</span><span class='line'>                }
+</span><span class='line'>                st.pop();
+</span><span class='line'>            }
+</span><span class='line'>        }
+</span><span class='line'>        return st.empty() ? true: false;
+</span><span class='line'>    }
+</span><span class='line'>};
+</span></code></pre></td></tr></table></div></figure>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[iOS Q&amp;A Session 1]]></title>
