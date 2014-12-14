@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2014-12-14T18:27:43+08:00</updated>
+  <updated>2014-12-14T18:29:43+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -20,13 +20,10 @@
     <id>http://andyqee.github.io/blog/2014/12/14/leetcode-find-peak-element</id>
     <content type="html"><![CDATA[<p>A peak element is an element that is greater than its neighbors.</p>
 
-<p>Given an input array where <code>num[i] ≠ num[i+1]</code>, find a peak element and return its index.</p>
-
-<p>The array may contain multiple peaks, in that case return the index to any one of the peaks is fine.</p>
-
-<p>You may imagine that <code>num[-1] = num[n] = -∞</code>.</p>
-
-<p>For example, in array <code>[1, 2, 3, 1]</code>, 3 is a peak element and your function should return the index number 2.</p>
+<p>Given an input array where <code>num[i] ≠ num[i+1]</code>, find a peak element and return its index.
+The array may contain multiple peaks, in that case return the index to any one of the peaks is fine.
+You may imagine that <code>num[-1] = num[n] = -∞</code>.
+For example, in array <code>[1, 2, 3, 1]</code>, 3 is a peak element and your function should return the index number 2.</p>
 
 <p>O(N) runtime solution: costs 40ms.</p>
 
