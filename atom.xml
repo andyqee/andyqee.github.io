@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2014-12-14T18:38:09+08:00</updated>
+  <updated>2014-12-14T20:24:46+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -26,7 +26,7 @@ You may imagine that <code>num[-1] = num[n] = -∞</code>.</p>
 
 <blockquote><p>For example, in array <code>[1, 2, 3, 1]</code>, 3 is a peak element and your function should return the index number 2.</p></blockquote>
 
-<h1>Solution</h1>
+<h1>Brute-force Solution</h1>
 
 <figure class='code'><figcaption><span> (find_peak_element.cpp)</span> <a href='http://andyqee.github.io/downloads/code/leetcode/find_peak_element.cpp'>download</a></figcaption>
 <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -104,6 +104,69 @@ You may imagine that <code>num[-1] = num[n] = -∞</code>.</p>
 
 
 <p>Time Complexity O(N) <code>costs 40ms</code>.</p>
+
+<p>Divide &amp; conquer Solution</p>
+
+<figure class='code'><figcaption><span> (find_peak_element_dc.cpp)</span> <a href='http://andyqee.github.io/downloads/code/leetcode/find_peak_element_dc.cpp'>download</a></figcaption>
+<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
+</span><span class='line'><span class="k">public</span><span class="o">:</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">findPeakElement</span><span class="p">(</span><span class="k">const</span> <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">num</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'><span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="n">num</span><span class="p">.</span><span class="n">size</span><span class="p">();</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">low</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">high</span> <span class="o">=</span> <span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>    <span class="kt">int</span> <span class="n">mid</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">while</span> <span class="p">(</span> <span class="n">low</span> <span class="o">&lt;</span> <span class="n">high</span> <span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="n">mid</span> <span class="o">=</span> <span class="n">low</span> <span class="o">+</span> <span class="p">(</span> <span class="n">high</span> <span class="o">-</span> <span class="n">low</span> <span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span> <span class="p">(</span> <span class="n">mid</span> <span class="o">==</span> <span class="mi">0</span> <span class="o">||</span> <span class="n">num</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">num</span><span class="p">[</span><span class="n">mid</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span> <span class="o">&amp;&amp;</span>
+</span><span class='line'>                <span class="p">(</span> <span class="n">mid</span> <span class="o">==</span> <span class="n">n</span><span class="o">-</span><span class="mi">1</span> <span class="o">||</span>  <span class="n">num</span><span class="p">[</span><span class="n">mid</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">num</span><span class="p">[</span><span class="n">mid</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="p">)</span>  <span class="p">){</span>
+</span><span class='line'>            <span class="k">return</span> <span class="n">mid</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="n">mid</span> <span class="o">&gt;</span><span class="mi">0</span> <span class="o">&amp;&amp;</span> <span class="n">num</span><span class="p">[</span><span class="n">mid</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">num</span><span class="p">[</span><span class="n">mid</span><span class="p">]){</span>
+</span><span class='line'>            <span class="n">high</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span><span class="k">else</span><span class="p">{</span>
+</span><span class='line'>            <span class="n">low</span> <span class="o">=</span> <span class="n">mid</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="k">return</span> <span class="n">low</span><span class="p">;</span>
+</span><span class='line'>    <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<br>
+
+
+<p>Time Complexity O(logN) <code>costs 16ms</code>.</p>
+
+<p>Math proof from <a href="http://courses.csail.mit.edu/6.006/spring11/lectures/lec02.pdf">here</a></p>
 ]]></content>
   </entry>
   
