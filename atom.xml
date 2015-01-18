@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2015-01-18T22:39:19+08:00</updated>
+  <updated>2015-01-18T22:43:42+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -80,14 +80,18 @@
 
 <h4>Tips2: UIButton</h4>
 
-<p>UIButton has a UIImageView 和 UILabel, 可以通过设置 imageEdgeInsets 和 titleEdgeInsets 来对这两者进行布局，这里要说明UIImageView 和 UILabel在 UIButton 中默认的位置布局如下:</p>
+<p>UIButton有Property UIImageView 和 UILabel, 可以通过设置 imageEdgeInsets 和 titleEdgeInsets 来对这两者进行布局，这里要说明UIImageView 和 UILabel在 UIButton 中默认的位置布局如下:</p>
 
 <pre><code>|[UIImageView]-[UILabel]|
 </code></pre>
 
 <p>其中系统默认 [UIImageView]&ndash;[UILabel] 作为一个整体居中。
-我们如何才能将其设置成以下布局呢，其中ImageView距离左边的padding 10.0f ,ImageView和Label的padding 也为10.0f<br>
-&ldquo;|-10-[UIImageView]-10-[UILabel]|&rdquo;
+我们如何才能将其设置成以下布局</p>
+
+<pre><code>|-10-[UIImageView]-10-[UILabel]|
+</code></pre>
+
+<p>其中ImageView距离左边的padding 10.0f ,ImageView和Label的padding 也为10.0f<br>
 分别计算UIImageView和UILabel的宽度</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
