@@ -4,7 +4,7 @@
   <title><![CDATA[Yee's Blog]]></title>
   <link href="http://andyqee.github.io/atom.xml" rel="self"/>
   <link href="http://andyqee.github.io/"/>
-  <updated>2014-12-14T20:24:46+08:00</updated>
+  <updated>2015-01-18T22:39:19+08:00</updated>
   <id>http://andyqee.github.io/</id>
   <author>
     <name><![CDATA[Yee Qee]]></name>
@@ -12,6 +12,107 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Cocoa Touch Develop Tips : Session1]]></title>
+    <link href="http://andyqee.github.io/blog/2015/01/14/cocoa-touch-develop-tips-session1/"/>
+    <updated>2015-01-14T23:36:33+08:00</updated>
+    <id>http://andyqee.github.io/blog/2015/01/14/cocoa-touch-develop-tips-session1</id>
+    <content type="html"><![CDATA[<h4>Tips1:  UILabel</h4>
+
+<p>设置UILabel 的一种比较时尚的方式, 运用了NSMutableParagraphStyle 和 NSAttributedString</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UILabel *label = [[UILabel alloc] init];
+</span><span class='line'>label.backgroundColor = [UIColor clearColor];
+</span><span class='line'>label.translatesAutoresizingMaskIntoConstraints = NO;
+</span><span class='line'>label.numberOfLines = 0;
+</span><span class='line'>NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+</span><span class='line'>paragraphStyle.lineBreakMode = NSLineBreakByCharWrapping;
+</span><span class='line'>paragraphStyle.alignment = NSTextAlignmentCenter;
+</span><span class='line'>paragraphStyle.lineSpacing = 7;
+</span><span class='line'>
+</span><span class='line'>NSDictionary *attributes = @{ NSFontAttributeName           : [UIFont ajkH3Font],
+</span><span class='line'>                              NSForegroundColorAttributeName: [UIColor brokerLightGrayColor],
+</span><span class='line'>                              NSParagraphStyleAttributeName : paragraphStyle
+</span><span class='line'>                            };
+</span><span class='line'>NSAttributedString *attributedText = [[NSAttributedString alloc] initWithString:@"快去添加更多联系人,\n 邀请他们和你一起聊天吧!"
+</span><span class='line'>                                                                     attributes:attributes];
+</span><span class='line'>label.attributedText = attributedText;
+</span><span class='line'>
+</span><span class='line'>[_addContactNotificationView addSubview:label];
+</span><span class='line'>
+</span><span class='line'>[_addContactNotificationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[label]|"
+</span><span class='line'>                                                                                    options:0
+</span><span class='line'>                                                                                    metrics:nil
+</span><span class='line'>                                                                                      views:NSDictionaryOfVariableBindings(label)]];
+</span><span class='line'>[_addContactNotificationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-20-[label(50)]|"
+</span><span class='line'>                                                                                    options:0
+</span><span class='line'>                                                                                    metrics:nil
+</span><span class='line'>                                                                                      views:NSDictionaryOfVariableBindings(label)]];</span></code></pre></td></tr></table></div></figure>
+
+
+<h4>Tips2: UIButton</h4>
+
+<p>UIButton has a UIImageView 和 UILabel, 可以通过设置 imageEdgeInsets 和 titleEdgeInsets 来对这两者进行布局，这里要说明UIImageView 和 UILabel在 UIButton 中默认的位置布局如下:</p>
+
+<pre><code>|[UIImageView]-[UILabel]|
+</code></pre>
+
+<p>其中系统默认 [UIImageView]&ndash;[UILabel] 作为一个整体居中。
+我们如何才能将其设置成以下布局呢，其中ImageView距离左边的padding 10.0f ,ImageView和Label的padding 也为10.0f<br>
+&ldquo;|-10-[UIImageView]-10-[UILabel]|&rdquo;
+分别计算UIImageView和UILabel的宽度</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>CGFloat imageWith = image.size.width;
+</span><span class='line'>CGFloat titleWith = [button.titleLabel.attributedText size].width;
+</span><span class='line'>
+</span><span class='line'>CGFloat imageInsetsLeft = - (button.width - imageWith - titleWith - padding * 2);    // negative 是向左偏里中心，其绝对值就是偏移的幅度。
+</span><span class='line'>CGFloat titleInsetLeft = imageInsetsLeft + padding;
+</span><span class='line'>
+</span><span class='line'>button.imageEdgeInsets = UIEdgeInsetsMake(0, imageInsetsLeft, 0, 0);
+</span><span class='line'>button.titleEdgeInsets = UIEdgeInsetsMake(0, titleInsetLeft , 0, 0);</span></code></pre></td></tr></table></div></figure>
+
+
+<p>通过 imageEdgeInsets 和 titleEdgeInsets 控制image 和 label 的距离的关键，在于你要知晓，这两者默认的位置一起居中. 这样才能通过UIEdgeInsetsMake创建正确的edgeInsets。</p>
+
+<blockquote><p>这里顺便研究下 contentEdgeInsets 到底如何使用</p></blockquote>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[LeetCode: Find Peak Element]]></title>

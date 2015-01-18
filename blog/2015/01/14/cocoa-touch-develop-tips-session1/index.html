@@ -5,12 +5,11 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>LeetCode: Regular Expression Matching - Yee's Blog</title>
+  <title>Cocoa Touch Develop Tips : Session1 - Yee's Blog</title>
   <meta name="author" content="Yee Qee">
 
   
-  <meta name="description" content="Implement regular expression matching with support for &lsquo;.&rsquo; and &lsquo;*&rsquo;.
-sequence is: 1
+  <meta name="description" content="Tips1: UILabel 设置UILabel 的一种比较时尚的方式, 运用了NSMutableParagraphStyle 和 NSAttributedString 1
 2
 3
 4
@@ -26,7 +25,14 @@ sequence is: 1
 14
 15
 16
-'.' &hellip;">
+17
+18
+19
+20
+21
+22
+23
+24 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -35,7 +41,7 @@ sequence is: 1
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   
-  <link rel="canonical" href="http://andyqee.github.io/blog/2014/09/26/leetcode-regular-expression-matching">
+  <link rel="canonical" href="http://andyqee.github.io/blog/2015/01/14/cocoa-touch-develop-tips-session1">
   <link href="/favicon.png" rel="icon">
   <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
   <link href="/atom.xml" rel="alternate" title="Yee's Blog" type="application/atom+xml">
@@ -86,7 +92,7 @@ sequence is: 1
   
   <header>
     
-      <h1 class="entry-title">LeetCode: Regular Expression Matching</h1>
+      <h1 class="entry-title">Cocoa Touch Develop Tips : Session1</h1>
     
     
       <p class="meta">
@@ -102,15 +108,16 @@ sequence is: 1
   
 
 
-<time datetime="2014-09-26T17:43:33+08:00" pubdate data-updated="true">Sep 26<span>th</span>, 2014</time>
+<time datetime="2015-01-14T23:36:33+08:00" pubdate data-updated="true">Jan 14<span>th</span>, 2015</time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content"><p>Implement regular expression matching with support for &lsquo;.&rsquo; and &lsquo;*&rsquo;.
-sequence is:</p>
+<div class="entry-content"><h4>Tips1:  UILabel</h4>
+
+<p>设置UILabel 的一种比较时尚的方式, 运用了NSMutableParagraphStyle 和 NSAttributedString</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -128,30 +135,59 @@ sequence is:</p>
 <span class='line-number'>14</span>
 <span class='line-number'>15</span>
 <span class='line-number'>16</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>'.' Matches any single character.
-</span><span class='line'>'*' Matches zero or more of the preceding element.
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>UILabel *label = [[UILabel alloc] init];
+</span><span class='line'>label.backgroundColor = [UIColor clearColor];
+</span><span class='line'>label.translatesAutoresizingMaskIntoConstraints = NO;
+</span><span class='line'>label.numberOfLines = 0;
+</span><span class='line'>NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
+</span><span class='line'>paragraphStyle.lineBreakMode = NSLineBreakByCharWrapping;
+</span><span class='line'>paragraphStyle.alignment = NSTextAlignmentCenter;
+</span><span class='line'>paragraphStyle.lineSpacing = 7;
 </span><span class='line'>
-</span><span class='line'>The matching should cover the entire input string (not partial).
+</span><span class='line'>NSDictionary *attributes = @{ NSFontAttributeName           : [UIFont ajkH3Font],
+</span><span class='line'>                              NSForegroundColorAttributeName: [UIColor brokerLightGrayColor],
+</span><span class='line'>                              NSParagraphStyleAttributeName : paragraphStyle
+</span><span class='line'>                            };
+</span><span class='line'>NSAttributedString *attributedText = [[NSAttributedString alloc] initWithString:@"快去添加更多联系人,\n 邀请他们和你一起聊天吧!"
+</span><span class='line'>                                                                     attributes:attributes];
+</span><span class='line'>label.attributedText = attributedText;
 </span><span class='line'>
-</span><span class='line'>The function prototype should be:
-</span><span class='line'>bool isMatch(const char *s, const char *p)
+</span><span class='line'>[_addContactNotificationView addSubview:label];
 </span><span class='line'>
-</span><span class='line'>Some examples:
-</span><span class='line'>isMatch("aa","a") → false
-</span><span class='line'>isMatch("aa","aa") → true
-</span><span class='line'>isMatch("aaa","aa") → false
-</span><span class='line'>isMatch("aa", "a*") → true
-</span><span class='line'>isMatch("aa", ".*") → true
-</span><span class='line'>isMatch("ab", ".*") → true
-</span><span class='line'>isMatch("aab", "c*a*b") → true</span></code></pre></td></tr></table></div></figure>
+</span><span class='line'>[_addContactNotificationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[label]|"
+</span><span class='line'>                                                                                    options:0
+</span><span class='line'>                                                                                    metrics:nil
+</span><span class='line'>                                                                                      views:NSDictionaryOfVariableBindings(label)]];
+</span><span class='line'>[_addContactNotificationView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-20-[label(50)]|"
+</span><span class='line'>                                                                                    options:0
+</span><span class='line'>                                                                                    metrics:nil
+</span><span class='line'>                                                                                      views:NSDictionaryOfVariableBindings(label)]];</span></code></pre></td></tr></table></div></figure>
 
 
-<h2>Solution</h2>
+<h4>Tips2: UIButton</h4>
 
-<p>recurcive implementation:</p>
+<p>UIButton has a UIImageView 和 UILabel, 可以通过设置 imageEdgeInsets 和 titleEdgeInsets 来对这两者进行布局，这里要说明UIImageView 和 UILabel在 UIButton 中默认的位置布局如下:</p>
 
-<figure class='code'><figcaption><span> (Regular_Expression_Matching.cpp)</span> <a href='/downloads/code/leetcode/Regular_Expression_Matching.cpp'>download</a></figcaption>
-<div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<pre><code>|[UIImageView]-[UILabel]|
+</code></pre>
+
+<p>其中系统默认 [UIImageView]&ndash;[UILabel] 作为一个整体居中。
+我们如何才能将其设置成以下布局呢，其中ImageView距离左边的padding 10.0f ,ImageView和Label的padding 也为10.0f<br>
+&ldquo;|-10-[UIImageView]-10-[UILabel]|&rdquo;
+分别计算UIImageView和UILabel的宽度</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
 <span class='line-number'>4</span>
@@ -159,30 +195,19 @@ sequence is:</p>
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-<span class='line-number'>9</span>
-<span class='line-number'>10</span>
-<span class='line-number'>11</span>
-<span class='line-number'>12</span>
-<span class='line-number'>13</span>
-<span class='line-number'>14</span>
-<span class='line-number'>15</span>
-</pre></td><td class='code'><pre><code class='cpp'><span class='line'><span class="k">class</span> <span class="nc">Solution</span> <span class="p">{</span>
-</span><span class='line'><span class="k">public</span><span class="o">:</span>
-</span><span class='line'>    <span class="kt">bool</span> <span class="n">isMatch</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">s</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span> <span class="o">*</span><span class="n">p</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>       <span class="n">assert</span><span class="p">(</span><span class="n">p</span> <span class="o">&amp;&amp;</span> <span class="n">s</span><span class="p">);</span>
-</span><span class='line'>       <span class="k">if</span> <span class="p">(</span> <span class="o">*</span><span class="n">p</span> <span class="err">＝</span><span class="o">=</span> <span class="sc">&#39;\0&#39;</span><span class="p">)</span> <span class="k">return</span> <span class="o">*</span><span class="n">s</span> <span class="o">==</span> <span class="sc">&#39;\0&#39;</span><span class="p">;</span>
-</span><span class='line'>       <span class="k">if</span> <span class="p">(</span><span class="o">*</span><span class="p">(</span><span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span> <span class="o">!=</span> <span class="sc">&#39;*&#39;</span><span class="p">)</span> <span class="p">{</span>
-</span><span class='line'>           <span class="n">assert</span><span class="p">(</span><span class="o">*</span><span class="n">p</span> <span class="o">!=</span> <span class="sc">&#39;*&#39;</span><span class="p">);</span>
-</span><span class='line'>           <span class="k">return</span> <span class="p">((</span><span class="o">*</span><span class="n">p</span> <span class="o">==</span> <span class="o">*</span><span class="n">s</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="o">*</span><span class="n">p</span> <span class="o">==</span> <span class="sc">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="n">s</span> <span class="o">!=</span> <span class="sc">&#39;\0&#39;</span><span class="p">))</span> <span class="o">&amp;&amp;</span> <span class="n">isMatch</span><span class="p">(</span><span class="n">s</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">1</span><span class="p">);</span>
-</span><span class='line'>       <span class="p">}</span>
-</span><span class='line'>       <span class="k">while</span> <span class="p">((</span><span class="o">*</span><span class="n">p</span> <span class="o">==</span> <span class="o">*</span><span class="n">s</span><span class="p">)</span> <span class="o">||</span> <span class="p">(</span><span class="o">*</span><span class="n">p</span> <span class="o">==</span> <span class="sc">&#39;.&#39;</span> <span class="o">&amp;&amp;</span> <span class="o">*</span><span class="n">s</span> <span class="o">!=</span> <span class="sc">&#39;\0&#39;</span><span class="p">))</span> <span class="p">{</span>
-</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="n">isMatch</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">2</span><span class="p">))</span> <span class="k">return</span> <span class="kc">true</span><span class="p">;</span>
-</span><span class='line'>            <span class="n">s</span><span class="o">++</span><span class="p">;</span>
-</span><span class='line'>     <span class="p">}</span>
-</span><span class='line'>     <span class="k">return</span> <span class="n">isMatch</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">p</span><span class="o">+</span><span class="mi">2</span><span class="p">);</span>
-</span><span class='line'><span class="p">};</span>
-</span></code></pre></td></tr></table></div></figure>
+</pre></td><td class='code'><pre><code class=''><span class='line'>CGFloat imageWith = image.size.width;
+</span><span class='line'>CGFloat titleWith = [button.titleLabel.attributedText size].width;
+</span><span class='line'>
+</span><span class='line'>CGFloat imageInsetsLeft = - (button.width - imageWith - titleWith - padding * 2);    // negative 是向左偏里中心，其绝对值就是偏移的幅度。
+</span><span class='line'>CGFloat titleInsetLeft = imageInsetsLeft + padding;
+</span><span class='line'>
+</span><span class='line'>button.imageEdgeInsets = UIEdgeInsetsMake(0, imageInsetsLeft, 0, 0);
+</span><span class='line'>button.titleEdgeInsets = UIEdgeInsetsMake(0, titleInsetLeft , 0, 0);</span></code></pre></td></tr></table></div></figure>
 
+
+<p>通过 imageEdgeInsets 和 titleEdgeInsets 控制image 和 label 的距离的关键，在于你要知晓，这两者默认的位置一起居中. 这样才能通过UIEdgeInsetsMake创建正确的edgeInsets。</p>
+
+<blockquote><p>这里顺便研究下 contentEdgeInsets 到底如何使用</p></blockquote>
 </div>
 
 
@@ -205,7 +230,7 @@ sequence is:</p>
   
 
 
-<time datetime="2014-09-26T17:43:33+08:00" pubdate data-updated="true">Sep 26<span>th</span>, 2014</time>
+<time datetime="2015-01-14T23:36:33+08:00" pubdate data-updated="true">Jan 14<span>th</span>, 2015</time>
       
 
 
@@ -213,7 +238,7 @@ sequence is:</p>
     
       <div class="sharing">
   
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://andyqee.github.io/blog/2014/09/26/leetcode-regular-expression-matching/" data-via="vitasone" data-counturl="http://andyqee.github.io/blog/2014/09/26/leetcode-regular-expression-matching/" >Tweet</a>
+  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://andyqee.github.io/blog/2015/01/14/cocoa-touch-develop-tips-session1/" data-via="vitasone" data-counturl="http://andyqee.github.io/blog/2015/01/14/cocoa-touch-develop-tips-session1/" >Tweet</a>
   
   
   <div class="g-plusone" data-size="medium"></div>
@@ -226,10 +251,8 @@ sequence is:</p>
     
     <p class="meta">
       
-        <a class="basic-alignment left" href="/blog/2014/09/24/leetcode-gray-code/" title="Previous Post: LeetCode: Gray Code">&laquo; LeetCode: Gray Code</a>
+        <a class="basic-alignment left" href="/blog/2014/12/14/leetcode-find-peak-element/" title="Previous Post: LeetCode: Find Peak Element">&laquo; LeetCode: Find Peak Element</a>
       
-      
-        <a class="basic-alignment right" href="/blog/2014/10/28/ios-q-and-a-session-1/" title="Next Post: iOS Q&amp;A Session 1">iOS Q&amp;A Session 1 &raquo;</a>
       
     </p>
   </footer>
