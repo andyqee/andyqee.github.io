@@ -215,6 +215,22 @@
 <p>通过 imageEdgeInsets 和 titleEdgeInsets 控制image 和 label 的距离的关键，在于你要知晓，这两者默认的位置一起居中. 这样才能通过UIEdgeInsetsMake创建正确的edgeInsets。</p>
 
 <blockquote><p>这里顺便研究下 contentEdgeInsets 到底如何使用</p></blockquote>
+
+<h4>Tips2: UITableViewCell</h4>
+
+<p>UITableViewCell 在被select 的之后，其背景色会变灰，而且其contentView 上面的所有subView 的backgroundColor 属性都会被设置成灰色。
+假设UILabel 是contentView 的subView，那么改如何设计才能保证，其背景色在被选中的时候不会消失呢？
+如果说，通过在UILabel 上调用 [label insertView:imageView atIndex:0] 但是不幸的是UILabel 上的文字会被覆盖掉。这样只能再引入一个UIView，但是这样会导致View 的hierachy 太复杂，影响性能。
+其实有一个更为简单的办法：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>label.backgroundColor = [UIColor clearColor];
+</span><span class='line'>label.layer.backgroundColor = [UIColor redColor].CGColor;
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>当在cell被selected之后，其label 的backgroundColor会被重新设置，但是layer上的property不会改变。</p>
 </div>
   
   
