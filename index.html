@@ -216,7 +216,7 @@
 
 <blockquote><p>这里顺便研究下 contentEdgeInsets 到底如何使用</p></blockquote>
 
-<h4>Tips2: UITableViewCell</h4>
+<h4>Tips3: UITableViewCell</h4>
 
 <p>UITableViewCell 在被select 的之后，其背景色会变灰，而且其contentView 上面的所有subView 的backgroundColor 属性都会被设置成灰色。
 假设UILabel 是contentView 的subView，那么改如何设计才能保证，其背景色在被选中的时候不会消失呢？
@@ -230,7 +230,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>当在cell被selected之后，其label 的backgroundColor会被重新设置，但是layer上的property不会改变。</p>
+<p>当在cell被selected之后，其label 的backgroundColor会被重新设置，但是layer上的backgroundColor不会改变。</p>
 </div>
   
   
