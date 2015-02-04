@@ -9,9 +9,11 @@
   <meta name="author" content="Yee Qee">
 
   
-  <meta name="description" content="AsyncDisplayKit 如何一个开源项目？
-首先通过其特性，思考为什么会这么设计，深入了解，其实现原理。 ASDisplayNode ASDisplayNode 是该kit的所有public class 中的base class。
-ASDisplayNode 提供了与UIView &hellip;">
+  <meta name="description" content="ASDisplayNode ASDisplayNode 是该Kit的所有public class 中的base class。
+ASDisplayNode 提供了与UIView 几乎同样的api接口,其又有两个辅助类。
+ASDisplayNode 类中有一个用来在主线程中执行block 1
+2
+3 &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -94,16 +96,10 @@ ASDisplayNode 提供了与UIView &hellip;">
   </header>
 
 
-<div class="entry-content"><h2>AsyncDisplayKit</h2>
+<div class="entry-content"><h3>ASDisplayNode</h3>
 
-<p>如何一个开源项目？
-首先通过其特性，思考为什么会这么设计，深入了解，其实现原理。<br></p>
-
-<h3>ASDisplayNode</h3>
-
-<p>ASDisplayNode 是该kit的所有public class 中的base class。
-ASDisplayNode 提供了与UIView 几乎同样的api接口。
-其又有两个辅助类。
+<p>ASDisplayNode 是该Kit的所有public class 中的base class。
+ASDisplayNode 提供了与UIView 几乎同样的api接口,其又有两个辅助类。
 ASDisplayNode 类中有一个用来在主线程中执行block</p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -136,16 +132,17 @@ ASDisplayNode 类中有一个用来在主线程中执行block</p>
 </span><span class='line'>ASDisplayNodeInternal.h //定义ASDisplayNode内部使用的方法和property。这里竟然把这些定义一个单独的头文件里。</span></code></pre></td></tr></table></div></figure>
 
 
-<p>异步绘制UI一个很重要的一点是如何加锁，以及哪里需要加锁。
+<p>ASDisplayNode 是异步UI绘制，对于异步并发程序，关键在于是如何设计锁，以及如何进行加锁。
 ASDisplayNode 使用以下加锁的方法，那么其加锁是怎么实现的呢？
 ASDN::MutexLocker l(_propertyLock);
-还发现编码习惯，在这些方法体中，都会直接对不满足条件直接调用return；非常严谨。而且大量使用宏和断言.对逻辑进行抽象.<br></p>
+还发现编码习惯，在这些方法体中，都先对参数进行判断，如果不满足条件直接调用return，非常严谨。而且大量使用宏和断言。<br></p>
 
 <figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class=''><span class='line'>  ASDisplayNodeAssertThreadAffinity(self);</span></code></pre></td></tr></table></div></figure>
 
 
-<p> 这行代码不知其意思?????</p>
+<p>
+这行代码不知其意思?????</p>
 
 <h3>ASDisplayNode(SubClassing)<br></h3>
 
