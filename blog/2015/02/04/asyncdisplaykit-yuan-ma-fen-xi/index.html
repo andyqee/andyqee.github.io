@@ -5,12 +5,13 @@
 <!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
 <head>
   <meta charset="utf-8">
-  <title>AsyncDisplayKit 源码分析 - Yee's Blog</title>
+  <title>AsyncDisplayKit 源码分析 - Yee&#8217;s Blog</title>
   <meta name="author" content="Yee Qee">
 
   
-  <meta name="description" content="
-">
+  <meta name="description" content="AsyncDisplayKit 如何一个开源项目？
+首先通过其特性，思考为什么会这么设计，深入了解，其实现原理。 ASDisplayNode ASDisplayNode 是该kit的所有public class 中的base class。
+ASDisplayNode 提供了与UIView &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -37,7 +38,7 @@
 
 <body   >
   <header role="banner"><hgroup>
-  <h1><a href="/">Yee's Blog</a></h1>
+  <h1><a href="/">Yee&#8217;s Blog</a></h1>
   
     <h2>Practicing Thinking Learning Sharing .</h2>
   
@@ -86,14 +87,356 @@
   
 
 
-<time datetime="2015-02-04T15:58:54+08:00" pubdate data-updated="true">Feb 4<span>th</span>, 2015</time>
+<time datetime="2015-02-04T15:58:54+08:00" pubdate data-updated="true"></time>
         
       </p>
     
   </header>
 
 
-<div class="entry-content">
+<div class="entry-content"><h2>AsyncDisplayKit</h2>
+
+<p>如何一个开源项目？
+首先通过其特性，思考为什么会这么设计，深入了解，其实现原理。<br></p>
+
+<h3>ASDisplayNode</h3>
+
+<p>ASDisplayNode 是该kit的所有public class 中的base class。
+ASDisplayNode 提供了与UIView 几乎同样的api接口。
+其又有两个辅助类。
+ASDisplayNode 类中有一个用来在主线程中执行block</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void ASDisplayNodePerformBlockOnMainThread(void (^block)())
+</span><span class='line'>{
+</span><span class='line'>  if ([NSThread isMainThread]) {
+</span><span class='line'>    block();
+</span><span class='line'>  } else {
+</span><span class='line'>    dispatch_async(dispatch_get_main_queue(), ^{
+</span><span class='line'>      block();
+</span><span class='line'>    });
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>这里没有粗暴调用NSObject 执行主线程的方法。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>ASDisplayNode (Subclassing)
+</span><span class='line'>ASDisplayNodeInternal.h //定义ASDisplayNode内部使用的方法和property。这里竟然把这些定义一个单独的头文件里。</span></code></pre></td></tr></table></div></figure>
+
+
+<p>异步绘制UI一个很重要的一点是如何加锁，以及哪里需要加锁。
+ASDisplayNode 使用以下加锁的方法，那么其加锁是怎么实现的呢？
+ASDN::MutexLocker l(_propertyLock);
+还发现编码习惯，在这些方法体中，都会直接对不满足条件直接调用return；非常严谨。而且大量使用宏和断言.对逻辑进行抽象.<br></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>  ASDisplayNodeAssertThreadAffinity(self);</span></code></pre></td></tr></table></div></figure>
+
+
+<p> 这行代码不知其意思?????</p>
+
+<h3>ASDisplayNode(SubClassing)<br></h3>
+
+<p>提供 subClases of ASDisplayNode 必须后者可以被overriden 的方法。这些方法不可以用于直接调用。
+通过实现<code>+displayWithParameters:isCancelled:</code>或者<code>drawRect:withParameters:isCancelled</code> 提供绘制UI;</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>-drawParametersForAsyncLayer</span></code></pre></td></tr></table></div></figure>
+
+
+<p>
+将涉及drawing 的所有property复制到用于display queue(异步)的immutable object。</p>
+
+<h3>ASControlNode</h3>
+
+<p>在这些方法里，都运用到了断言对参数进行判断<code>NSParameterAssert(action)</code> 这种编码习惯值得借鉴！</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>NSMapTable</span></code></pre></td></tr></table></div></figure>
+
+
+<p>发现一个全新的数据集合类型，之前一直没怎么用到过。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)addTarget:(id)target action:(SEL)action forControlEvents:(ASControlNodeEvent)controlEventMask
+</span><span class='line'>{
+</span><span class='line'>  NSParameterAssert(action);
+</span><span class='line'>  NSParameterAssert(controlEventMask != 0);
+</span><span class='line'>  
+</span><span class='line'>  // Convert nil to [NSNull null] so that it can be used as a key for NSMapTable.
+</span><span class='line'>  if (!target)
+</span><span class='line'>    target = [NSNull null];
+</span><span class='line'>
+</span><span class='line'>  // Enumerate the events in the mask, adding the target-action pair for each control event included in controlEventMask
+</span><span class='line'>  _ASEnumerateControlEventsIncludedInMaskWithBlock(controlEventMask, ^
+</span><span class='line'>    (ASControlNodeEvent controlEvent)
+</span><span class='line'>    {
+</span><span class='line'>      // Do we already have an event table for this control event?
+</span><span class='line'>      id&lt;NSCopying&gt; eventKey = _ASControlNodeEventKeyForControlEvent(controlEvent);
+</span><span class='line'>      NSMapTable *eventDispatchTable = [_controlEventDispatchTable objectForKey:eventKey];
+</span><span class='line'>      // Create it if necessary.
+</span><span class='line'>      if (!eventDispatchTable)
+</span><span class='line'>      {
+</span><span class='line'>        // Create the dispatch table for this event.
+</span><span class='line'>        eventDispatchTable = [NSMapTable weakToStrongObjectsMapTable];
+</span><span class='line'>        [_controlEventDispatchTable setObject:eventDispatchTable forKey:eventKey];
+</span><span class='line'>      }
+</span><span class='line'>
+</span><span class='line'>      // Have we seen this target before for this event?
+</span><span class='line'>      NSMutableArray *targetActions = [eventDispatchTable objectForKey:target];
+</span><span class='line'>      if (!targetActions)
+</span><span class='line'>      {
+</span><span class='line'>        // Nope. Create an actions array for it.
+</span><span class='line'>        targetActions = [[NSMutableArray alloc] initWithCapacity:kASControlNodeActionDispatchTableInitialCapacity]; // enough to handle common types without re-hashing the dictionary when adding entries.
+</span><span class='line'>        [eventDispatchTable setObject:targetActions forKey:target];
+</span><span class='line'>      }
+</span><span class='line'>
+</span><span class='line'>      // Add the action message.
+</span><span class='line'>      // Note that bizarrely enough UIControl (at least according to the docs) supports duplicate target-action pairs for a particular control event, so we replicate that behavior.
+</span><span class='line'>      [targetActions addObject:NSStringFromSelector(action)];
+</span><span class='line'>    });
+</span><span class='line'>
+</span><span class='line'>  self.userInteractionEnabled = YES;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>下面这个方法是C 风格的方法，为什么要这么写呢？</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>void _ASEnumerateControlEventsIncludedInMaskWithBlock(ASControlNodeEvent mask, void (^block)(ASControlNodeEvent anEvent))
+</span><span class='line'>{
+</span><span class='line'>  // Start with our first event (touch down) and work our way up to the last event (touch cancel)
+</span><span class='line'>  for (ASControlNodeEvent thisEvent = ASControlNodeEventTouchDown; thisEvent &lt;= ASControlNodeEventTouchCancel; thisEvent &lt;&lt;= 1)
+</span><span class='line'>  {
+</span><span class='line'>    // If it's included in the mask, invoke the block.
+</span><span class='line'>    if ((mask & thisEvent) == thisEvent)
+</span><span class='line'>      block(thisEvent);
+</span><span class='line'>  }
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ASTableView</h3>
+
+<p>对该初始化方法进行分析，发现该类由三个主要组件构成 <code>ASFlowLayoutController</code>, <code>ASRangeController</code>, <code>ASDataController</code>。 这三个controller 也被用来实现<code>ASCollectionView</code></p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (instancetype)initWithFrame:(CGRect)frame style:(UITableViewStyle)style
+</span><span class='line'>{
+</span><span class='line'>  if (!(self = [super initWithFrame:frame style:style]))
+</span><span class='line'>    return nil;
+</span><span class='line'>
+</span><span class='line'>  _layoutController = [[ASFlowLayoutController alloc] initWithScrollOption:ASFlowLayoutDirectionVertical];
+</span><span class='line'>
+</span><span class='line'>  _rangeController = [[ASRangeController alloc] init];
+</span><span class='line'>  _rangeController.layoutController = _layoutController;
+</span><span class='line'>  _rangeController.delegate = self;
+</span><span class='line'>
+</span><span class='line'>  _dataController = [[ASDataController alloc] init];
+</span><span class='line'>  _dataController.dataSource = self;
+</span><span class='line'>  _dataController.delegate = _rangeController;
+</span><span class='line'>
+</span><span class='line'>  return self;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<h3>ASNetworkImageNode</h3>
+
+<p>可以通过学习这个类，来很好的研究网络下载图片的最佳实践。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (instancetype)initWithCache:(id&lt;ASImageCacheProtocol&gt;)cache downloader:(id&lt;ASImageDownloaderProtocol&gt;)downloader
+</span><span class='line'>{
+</span><span class='line'>  if (!(self = [super init]))
+</span><span class='line'>    return nil;
+</span><span class='line'>
+</span><span class='line'>  _cache = cache;
+</span><span class='line'>  _downloader = downloader;
+</span><span class='line'>  _shouldCacheImage = YES;
+</span><span class='line'>
+</span><span class='line'>  return self;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>包含一个cache， downloader， 以及一个状态标志flag。
+这里需要学习的是如何实现cache，以及 downloader呢？
+DownLoader 是ASNetworkImageNode 里面的一个property ，也就是组合模式。
+取消下载方法：</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)_cancelImageDownload
+</span><span class='line'>{
+</span><span class='line'>  if (!_imageDownload) {
+</span><span class='line'>    return;
+</span><span class='line'>  }
+</span><span class='line'>
+</span><span class='line'>  [_downloader cancelImageDownloadForIdentifier:_imageDownload];
+</span><span class='line'>  _imageDownload = nil;
+</span><span class='line'>
+</span><span class='line'>  _cacheUUID = nil;
+</span><span class='line'>}
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>- (void)_downloadImageWithCompletion:(void (^)(CGImageRef))finished
+</span><span class='line'>{
+</span><span class='line'>  _imageDownload = [_downloader downloadImageWithURL:_URL
+</span><span class='line'>                                       callbackQueue:dispatch_get_main_queue()
+</span><span class='line'>                               downloadProgressBlock:NULL
+</span><span class='line'>                                          completion:^(CGImageRef responseImage, NSError *error) {
+</span><span class='line'>                                            if (finished != NULL) {
+</span><span class='line'>                                              finished(responseImage);
+</span><span class='line'>                                            }
+</span><span class='line'>                                          }];
+</span><span class='line'>}</span></code></pre></td></tr></table></div></figure>
+
+
+<p>在给类NSURLRequest 利用runtime 添加属性，这里使用了<code>static const char</code>修饰符。 因为ASBasicImageDownloader 是 NSURLSession backed，所以只支持iOS7 以上的版本。</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>@interface NSURLRequest (ASBasicImageDownloader)
+</span><span class='line'>@property (nonatomic, strong) ASBasicImageDownloaderMetadata *asyncdisplaykit_metadata;
+</span><span class='line'>@end
+</span><span class='line'>
+</span><span class='line'>@implementation NSURLRequest (ASBasicImageDownloader)
+</span><span class='line'>static const char *kMetadataKey = NSStringFromClass(ASBasicImageDownloaderMetadata.class).UTF8String;
+</span><span class='line'>- (void)setAsyncdisplaykit_metadata:(ASBasicImageDownloaderMetadata *)asyncdisplaykit_metadata
+</span><span class='line'>{
+</span><span class='line'>  objc_setAssociatedObject(self, kMetadataKey, asyncdisplaykit_metadata, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+</span><span class='line'>}
+</span><span class='line'>- (ASBasicImageDownloader *)asyncdisplaykit_metadata
+</span><span class='line'>{
+</span><span class='line'>  return objc_getAssociatedObject(self, kMetadataKey);
+</span><span class='line'>}
+</span><span class='line'>@end</span></code></pre></td></tr></table></div></figure>
+
+
+
 </div>
 
 
@@ -116,7 +459,7 @@
   
 
 
-<time datetime="2015-02-04T15:58:54+08:00" pubdate data-updated="true">Feb 4<span>th</span>, 2015</time>
+<time datetime="2015-02-04T15:58:54+08:00" pubdate data-updated="true"></time>
       
 
 
@@ -182,7 +525,7 @@
 <section>
   <h1>GitHub Repos</h1>
   <ul id="gh_repos">
-    <li class="loading">Status updating...</li>
+    <li class="loading">Status updating&#8230;</li>
   </ul>
   
   <a href="https://github.com/andyqee">@andyqee</a> on GitHub
