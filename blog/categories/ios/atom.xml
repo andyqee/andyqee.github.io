@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Ios | Yee's Blog]]></title>
+  <link href="http://andyqee.github.io/blog/categories/ios/atom.xml" rel="self"/>
+  <link href="http://andyqee.github.io/"/>
+  <updated>2015-05-25T18:23:26+08:00</updated>
+  <id>http://andyqee.github.io/</id>
+  <author>
+    <name><![CDATA[Yee Qee]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Concurrent Programming in iOS]]></title>
+    <link href="http://andyqee.github.io/blog/2015/05/25/concurrent-programming-in-ios/"/>
+    <updated>2015-05-25T16:26:43+08:00</updated>
+    <id>http://andyqee.github.io/blog/2015/05/25/concurrent-programming-in-ios</id>
+    <content type="html"><![CDATA[<p>iOS 中多线程编程主要通过NSOperation和libdispatch来实现。这部分主要介绍NSOperation的特点以及使用。</p>
+
+<h3>NSOperation</h3>
+
+<p>NSOperation是基于GCD实现的high－level用来实现多线程的框架，是一个抽象类,系统提供两个concreate子类。</p>
+
+<ul>
+<li>NSInvocationOperation(non-concurrent)</li>
+<li>NSBlockOperation(concurrent)</li>
+</ul>
+
+
+<h3>特点</h3>
+
+<ul>
+<li>NSOperation 可以设定 maxConcurrentOperationCount 用来确定特定queue 上可以有几个operation。（可以用于需要隔离独立operation）.</li>
+<li>可以设定operation 之间的依赖，从而决定执行的逻辑次序
+<code>
+[intermediateOperation addDependency:operation1];
+[intermediateOperation addDependency:operation2];
+[finishedOperation addDependency:intermediateOperation];
+</code></li>
+<li>可以设定priority</li>
+<li>可以 cancel</li>
+</ul>
+
+
+<h3>注意事项</h3>
+
+<h4>并发的NSOperation</h4>
+
+<p>重载start()
+对于NSOperaion 的派生类，其executing, finished, 在该operation 为并发的状态时需要override，需要手动的触发KVO通知，在非并发状态下则不需要。
+&#8220;`</p>
+
+<pre><code>[self willChangeValueForKey:newStateKey];
+[self didChangeValueForKey:oldStateKey];
+</code></pre>
+
+<p>&#8220;`
+通过
+&ndash; (BOOL)isConcurrent {</p>
+
+<pre><code>return YES;
+</code></pre>
+
+<p>}</p>
+
+<h4>非并发的NSOperation</h4>
+
+<p><code>
+- (void)main {
+     while (notDone &amp;&amp; !self.isCancelled){
+      // do your processing
+}
+</code>
+}这里容易出错的一个问题是，在main函数中只能执行同步操作。如果是异步的，main函数执行之后完之后，就立刻回调operation的completion block。但是而此时main中异步操作中block 还没有执行呢，所以会出现没有completion block过早反问operation定义的属性，此时会导致没有获取数据。</p>
+
+<h3>NSOperationQueue</h3>
+
+<p>NSOperationQueue 有两种类型: main queue and custom queues
+<code>
+NSOperationQueue *queue = [[NSOperationQueue alloc] init];
+YourOperation *operation = [[YourOperation alloc] init];
+[queue  addOperation:operation];
+</code></p>
+
+<p>&#8220;`
+Alternatively, you can also add blocks to operation queues. This comes in handy, e.g. if you want to schedule one-off tasks on the main queue:
+[[NSOperationQueue mainQueue] addOperationWithBlock:^{</p>
+
+<pre><code>// do something...
+</code></pre>
+
+<p>}];
+&#8220;`</p>
+
+<h3>iOS 8 &amp; Yosemite更新</h3>
+
+<p>the threadPriority property has been deprecated in favor of this newqualityOfService property. </p>
+
+<p>Asynchronous operation
+Concurrent 属性 被deprecated。</p>
+
+<h3>Where can we apply?</h3>
+
+<p>Network request, image resizing, text processing, or any other repeatable, structured long -running  task that produces associated state or data( From NShipster)
+PS:对于one-off computation, 选择lightWeight GCD 更好些</p>
+]]></content>
+  </entry>
+  
+</feed>
